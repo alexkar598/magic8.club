@@ -1,5 +1,3 @@
-'use client'
-
 import Image from "next/image";
 import ballImage from "@/images/placeholder-ball.png"
 import {Input} from "@/components/ui/input";
@@ -22,21 +20,18 @@ export default function Page() {
     }
 
     return (
-        <div
-            className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]">
-            <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-                <h1 className="sr-only">Magic 8 Ball</h1>
-                <h2 className="text-2xl">What do you want to ask the 8ball?</h2>
-                <Button asChild variant="ghost">
-                    <Link href="/answer">Answer someone's question instead</Link>
-                </Button>
-                <Form action={submit}>
-                    <Input name="question" placeholder="Should I..."/>
-                </Form>
-                <div className="flex flex-col gap-8 items-center">
-                    <Image src={ballImage} alt="Magic 8 Ball" width={640}/>
-                </div>
-            </main>
-        </div>
+        <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
+            <h1 className="sr-only">Magic 8 Ball</h1>
+            <h2 className="text-2xl">What do you want to ask the 8ball?</h2>
+            <Button asChild variant="ghost">
+                <Link href="/answer">Answer someone's question instead</Link>
+            </Button>
+            <Form action={submit}>
+                <Input name="question" placeholder="Should I..."/>
+            </Form>
+            <div className="flex flex-col gap-8 items-center">
+                <Image src={ballImage} alt="Magic 8 Ball" width={640}/>
+            </div>
+        </main>
     );
 }
