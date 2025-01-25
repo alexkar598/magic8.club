@@ -10,20 +10,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@keyv/sqlite": "^4.0.1",
+    "@mikro-orm/better-sqlite": "^6.4.4",
+    "@mikro-orm/core": "^6.4.4",
+    "@mikro-orm/reflection": "^6.4.4",
     "cookie-parser": "^1.4.7",
     "express": "^5.0.1",
-    "keyv": "^5.2.3",
     "socket.io": "^4.8.1",
     "uuid": "^11.0.5",
     "zod": "^3.24.1"
   },
   "type": "module",
   "devDependencies": {
+    "@mikro-orm/cli": "^6.4.4",
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
+  },
+  "mikro-orm": {
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
   }
 }

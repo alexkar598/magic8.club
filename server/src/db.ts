@@ -1,16 +1,8 @@
-import KeyvSqlite from "@keyv/sqlite";
-import Keyv from "keyv";
+import { MikroORM } from "@mikro-orm/better-sqlite";
 
-const keyvSqlite = new KeyvSqlite("sqlite://data/keyv.sqlite");
+const db = await MikroORM.init();
 
-export default {
-  // Meta key -> Meta data
-  meta: new Keyv({ store: keyvSqlite, namespace: "_meta" }),
-  // User token -> User Id
-  tokens: new Keyv({ store: keyvSqlite, namespace: "tokens" }),
-  // Question Id -> Question Data
-  questions: new Keyv({ store: keyvSqlite, namespace: "questions" }),
+await db.schema.updateSchema();
 
-  // Testing namespace
-  test: new Keyv({ store: keyvSqlite, namespace: "test" }),
-};
+export default db;
+export const em = db.em;

@@ -1,6 +1,6 @@
 import { RequestHandler } from "express-serve-static-core";
-import db from "./db";
-import { v4 as uuidv4 } from "uuid";
+import { em } from "./db";
+import { DbUser } from "./entities/user.ts";
 
 const magic8TokenCookieName = "magic8_token";
 
@@ -9,14 +9,15 @@ export const authHandler: RequestHandler = async (req, res, next) => {
 
   // If we have a token, get the associated user id
   let user_id =
-    token == null ? null : ((await db.tokens.get<string>(token)) ?? null);
+    token == null ? null : ((await em.findOne(DbUser, { token }))?.id ?? null);
 
   // No account
   if (user_id == null) {
-    token = uuidv4();
-    user_id = uuidv4();
+    const new_user = new DbUser();
+    await em.persistAndFlush(new_user);
+    token = new_user.token;
+    user_id = new_user.id;
 
-    await db.tokens.set(token, user_id);
     res.cookie(magic8TokenCookieName, token, {
       httpOnly: true,
     });

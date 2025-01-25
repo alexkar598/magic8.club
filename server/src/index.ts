@@ -1,10 +1,12 @@
+import { raw, RequestContext } from "@mikro-orm/core";
 import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
 import { ZodError } from "zod";
 import { authHandler } from "./auth";
 import { config } from "./config";
-import db from "./db";
+import db, { em } from "./db";
+import { DbUser } from "./entities/user.ts";
 import { io } from "./realtime";
 import { appRouter } from "./routes";
 
@@ -12,10 +14,13 @@ const app = express();
 
 app.use(cookieParser());
 app.use(json());
+app.use((_req, _res, next) => {
+  RequestContext.create(db.em, next);
+});
 app.use(authHandler);
 app.use(appRouter);
 
-app.use(((err, req, res, next) => {
+app.use(((err, _req, res, next) => {
   if (err instanceof ZodError) {
     res.status(400).end(err.toString());
     return;
@@ -25,10 +30,12 @@ app.use(((err, req, res, next) => {
 }) satisfies ErrorRequestHandler);
 
 app.get("/", async (req, res) => {
-  const counter = (await db.test.get<number>(req.user_id)) ?? 1;
-  await db.test.set(req.user_id, counter + 1);
+  const userRef = em.getReference(DbUser, req.user_id);
+  userRef.counter = raw("counter + 1");
 
-  res.send(`<h1>You've been here ${counter} times</h1>`);
+  await em.flush();
+
+  res.send(`<h1>You've been here ${userRef.counter} times</h1>`);
 });
 
 const server = http.createServer(app);
