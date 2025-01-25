@@ -10,10 +10,17 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.2",
-    "socket.io": "^4.8.1"
+    "@keyv/sqlite": "^4.0.1",
+    "cookie-parser": "^1.4.7",
+    "express": "^5.0.1",
+    "keyv": "^5.2.3",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
   },
+  "type": "module",
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.9",
     "tsx": "^4.19.2",
