@@ -38,6 +38,11 @@ app.get("/", async (req, res) => {
   res.send(`<h1>You've been here ${userRef.counter} times</h1>`);
 });
 
+app.use(async (_req, _res, next) => {
+  await em.flush();
+  next();
+});
+
 const server = http.createServer(app);
 server.listen(config.port, () => {
   console.log(`listening on *:${config.port}`);

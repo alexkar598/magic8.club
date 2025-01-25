@@ -14,7 +14,7 @@ export const authHandler: RequestHandler = async (req, res, next) => {
   // No account
   if (user_id == null) {
     const new_user = new DbUser();
-    await em.persistAndFlush(new_user);
+    em.persist(new_user);
     token = new_user.token;
     user_id = new_user.id;
 
@@ -24,6 +24,7 @@ export const authHandler: RequestHandler = async (req, res, next) => {
   }
 
   req.user_id = user_id;
+  req.user = em.getReference(DbUser, user_id);
 
   next();
 };
