@@ -15,6 +15,7 @@
     "@mikro-orm/reflection": "^6.4.4",
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "express": "^5.0.1",
     "socket.io": "^4.8.1",
     "uuid": "^11.0.5",
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@mikro-orm/cli": "^6.4.4",
     "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",

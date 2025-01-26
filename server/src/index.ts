@@ -3,14 +3,21 @@ import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
 import { ZodError } from "zod";
-import { authHandler } from "./auth.js";
+import { authHandler, magic8SessionIdHeaderName } from "./auth.js";
 import { config } from "./config.js";
 import db, { em } from "./db.js";
 import { DbUser } from "./entities/user.js";
 import { io } from "./realtime.js";
 import { appRouter } from "./routes/index.js";
+import cors from "cors";
 const app = express();
 
+app.use(
+  cors({
+    allowedHeaders: [magic8SessionIdHeaderName],
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.use(json());
 app.use((_req, _res, next) => {
