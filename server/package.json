@@ -1,0 +1,41 @@
+{
+  "name": "magic8backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@mikro-orm/better-sqlite": "^6.4.4",
+    "@mikro-orm/core": "^6.4.4",
+    "@mikro-orm/reflection": "^6.4.4",
+    "cookie": "^1.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^5.0.1",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@mikro-orm/cli": "^6.4.4",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "mikro-orm": {
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
+  }
+}
