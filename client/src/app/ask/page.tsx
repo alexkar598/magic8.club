@@ -5,6 +5,7 @@ import { useInterval } from "usehooks-ts";
 import { socket } from "@/app/api";
 import Ball from "@/components/ball";
 import { Loader2 } from "lucide-react";
+import { TypeAnimation } from "react-type-animation";
 
 export default function Page() {
   const quotes = [
@@ -26,7 +27,8 @@ export default function Page() {
     "Fortune favors the prepared over the bold.",
   ];
 
-  const [quote, setQuote] = useState(quotes[0]);
+  const quoteSequence = quotes.flatMap((q) => [q, 4000]);
+
   const [answer, setAnswer] = useState("");
   const [isPending, setIsPending] = useState(false);
 
@@ -54,34 +56,47 @@ export default function Page() {
     };
   });
 
-  useInterval(() => {
-    const index = Math.floor(Math.random() * quotes.length);
-    setQuote(quotes[index]);
-  }, 5000);
-
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <div className="flex flex-col gap-6 mt-[-2rem] text-center items-centerfont-pixel text-purple-800 ">
-        {!answer && (
-          <div className="flex flex-col gap-2 items-center font-pixel">
-            {isPending ? (
-              <h2 className="text-3xl">Someone is answering</h2>
-            ) : (
-              <h2 className="text-3xl">Waiting for a random user</h2>
-            )}
-            <Loader2 className="animate-spin w-12 h-12" />
-          </div>
-        )}
+        <div className="flex flex-col gap-2 items-center font-pixel">
+          {answer ? (
+            <TypeAnimation
+              sequence={["The 8 ball has spoken!"]}
+              cursor={false}
+              className="text-2xl font-pixel"
+            />
+          ) : (
+            <>
+              {isPending ? (
+                <h2 className="text-3xl">Someone is answering</h2>
+              ) : (
+                <h2 className="text-3xl">Waiting for a random user</h2>
+              )}
+              <Loader2 className="animate-spin w-12 h-12" />
+            </>
+          )}
+        </div>
+
         {useMemo(
           () => (
             <Ball />
           ),
           [],
         )}
-        <h2>{answer}</h2>
-        <p className="text-xl text-center text-purple-800  font-pixel">
-          “{quote}”
-        </p>
+        {answer ? (
+          <>
+            <TypeAnimation
+              sequence={[answer]}
+              cursor={false}
+              className="font-inherit text-left bg-gray-200 border rounded-xl px-4 py-2 text-xl font-pixel"
+            />
+          </>
+        ) : (
+          <span className="text-xl text-center text-purple-800  font-pixel">
+            "<TypeAnimation sequence={quoteSequence} />"
+          </span>
+        )}
       </div>
     </main>
   );
