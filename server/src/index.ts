@@ -2,6 +2,7 @@ import { raw, RequestContext } from "@mikro-orm/core";
 import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
+import process from "node:process";
 import { ZodError } from "zod";
 import { authHandler, magic8SessionIdHeaderName } from "./auth.js";
 import { config } from "./config.js";
@@ -16,7 +17,7 @@ const app = express();
 app.use(
   cors({
     allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
-    credentials: true,
+    credentials: !Boolean(process.env.SAME_ORIGIN),
     origin: true,
   }),
 );
