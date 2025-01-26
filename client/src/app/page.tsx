@@ -43,7 +43,7 @@ export default function Page() {
               type="submit"
               disabled={question.length === 0}
             >
-              Submit
+              Ask
             </Button>
           </Form>
 

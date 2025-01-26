@@ -23,6 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <title>Magic 8ball</title>
+        <link rel="shortcut icon" href="/favicon.png" type="image/png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen gap-16 font-[family-name:var(--font-geist-sans)]`}

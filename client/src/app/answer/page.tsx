@@ -63,6 +63,7 @@ export default function Page() {
         ) : (
           <>
             <h1>No questions for now...</h1>
+            <Loader2 className="animate-spin" />
           </>
         )}
       </div>
