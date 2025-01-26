@@ -5,17 +5,22 @@ import { io } from "socket.io-client";
 
 export const sid = Math.random().toString(36);
 
-const SERVER_URL = "http://localhost:5000";
+const SERVER_URL =
+  process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:5000";
 const SESSION_ID_HEADER_NAME = "Magic8SessionId";
+const same_origin = Boolean(process.env.NEXT_PUBLIC_SAME_ORIGIN);
 
 export const socket = io(SERVER_URL, {
-  withCredentials: true,
+  withCredentials: !same_origin,
   extraHeaders: {
     [SESSION_ID_HEADER_NAME]: sid,
   },
 });
 
-const { promise: isReady, resolve: setIsReady } = Promise.withResolvers<void>();
+let setIsReady: (value: void) => void;
+const isReady = new Promise((resolve) => {
+  setIsReady = resolve;
+});
 
 socket.on("connection:ready", () => {
   setIsReady();
@@ -26,7 +31,7 @@ export const restApi = axios.create({
   headers: {
     [SESSION_ID_HEADER_NAME]: sid,
   },
-  withCredentials: true,
+  withCredentials: !same_origin,
 });
 
 restApi.interceptors.request.use(async (config) => {
