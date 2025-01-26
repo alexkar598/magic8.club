@@ -1,7 +1,8 @@
-import { Entity, Enum, ManyToOne } from "@mikro-orm/better-sqlite";
+import { Entity, ManyToOne } from "@mikro-orm/better-sqlite";
 import { PrimaryKey, Property } from "@mikro-orm/core";
 import { v4 } from "uuid";
 import { QuestionState } from "../public_types/question.ts";
+import QuestionManager from "../QuestionManager.ts";
 import { DbUser } from "./user.ts";
 
 @Entity()
@@ -13,16 +14,20 @@ export class DbQuestion {
   // Props
   @Property()
   text: string;
-
-  @Enum()
-  state = QuestionState.Unclaimed;
+  @Property()
+  askedAt: Date = new Date();
 
   // Owning relations
   @ManyToOne()
   author: DbUser;
 
-  //Code
+  // Virtual
+  @Property({ persist: false })
+  getState(): QuestionState {
+    return QuestionManager.getQuestionState(this.id);
+  }
 
+  //Code
   constructor(text: string, author: DbUser) {
     this.text = text;
     this.author = author;

@@ -3,6 +3,8 @@ import { entityId } from "./_base.ts";
 
 export enum QuestionState {
   Unclaimed,
+  Pending,
+  Closed,
 }
 
 export const questionSchema = z.object({
@@ -10,8 +12,9 @@ export const questionSchema = z.object({
   text: z.string().min(1),
   author: entityId,
   state: z.nativeEnum(QuestionState),
+  askedAt: z.date(),
 });
 export type Question = z.infer<typeof questionSchema>;
 
 export const questionPostSchema = questionSchema.pick({ text: true });
-export type QuestionPostSchema = z.infer<typeof questionPostSchema>;
+export type QuestionPost = z.infer<typeof questionPostSchema>;

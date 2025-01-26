@@ -3,13 +3,12 @@ import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
 import { ZodError } from "zod";
-import { authHandler } from "./auth";
-import { config } from "./config";
-import db, { em } from "./db";
-import { DbUser } from "./entities/user.ts";
-import { io } from "./realtime";
-import { appRouter } from "./routes";
-
+import { authHandler } from "./auth.js";
+import { config } from "./config.js";
+import db, { em } from "./db.js";
+import { DbUser } from "./entities/user.js";
+import { io } from "./realtime.js";
+import { appRouter } from "./routes/index.js";
 const app = express();
 
 app.use(cookieParser());
