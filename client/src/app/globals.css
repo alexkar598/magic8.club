@@ -11,9 +11,14 @@ body {
   color: rgb(107 114 128 / var(--tw-text-opacity, 1));
 }
 
+@font-face {
+  font-family: 'Pixel Digivolve';
+  src: url('/assets/fonts/pixel_digivolve.woff2') format('woff2');
+}
 
 @layer base {
   :root {
+    --font-pixel: 'Pixel Digivolve', sans-serif;
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;

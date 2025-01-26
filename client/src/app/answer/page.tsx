@@ -6,8 +6,11 @@ import { useEffect, useMemo, useState } from "react";
 import { restApi, socket } from "@/app/api";
 import Ball from "@/components/ball";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
   async function submit(formData: FormData) {
     setSubmitting(true);
     const text = formData.get("answer");
@@ -16,6 +19,12 @@ export default function Page() {
       question: question.id,
     });
     setSubmitting(false);
+
+    toast.success("Answer has been sent successfully !", {
+      description: "Thank you for your answer!",
+    });
+
+    router.push("/");
   }
 
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +46,7 @@ export default function Page() {
       <div className="flex text-2xl self-center items-center gap-5 flex-col font-mono ">
         {question ? (
           <>
-            <h1>{question.text}</h1>
+            <h1 className="font-pixel text-purple-700">{question.text}</h1>
             <Form
               className="flex w-[40rem] self-center flex-col gap-2"
               action={submit}
@@ -62,8 +71,10 @@ export default function Page() {
           </>
         ) : (
           <>
-            <h1>No questions for now...</h1>
-            <Loader2 className="animate-spin" />
+            <h1 className="font-pixel text-center text-purple-700">
+              No questions for now...
+            </h1>
+            <Loader2 className="animate-spin text-purple-700 w-12 h-12" />
           </>
         )}
       </div>

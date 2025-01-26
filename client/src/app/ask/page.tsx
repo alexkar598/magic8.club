@@ -61,13 +61,13 @@ export default function Page() {
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-      <div className="flex flex-col gap-12 mt-[-2rem] items-center">
+      <div className="flex flex-col gap-6 mt-[-2rem] text-center items-centerfont-pixel text-purple-800 ">
         {!answer && (
-          <div className="flex flex-col gap-2 items-center">
+          <div className="flex flex-col gap-2 items-center font-pixel">
             {isPending ? (
-              <h2 className="text-3xl">Someone is answering...</h2>
+              <h2 className="text-3xl">Someone is answering</h2>
             ) : (
-              <h2 className="text-3xl">Waiting for a random user...</h2>
+              <h2 className="text-3xl">Waiting for a random user</h2>
             )}
             <Loader2 className="animate-spin w-12 h-12" />
           </div>
@@ -79,8 +79,9 @@ export default function Page() {
           [],
         )}
         <h2>{answer}</h2>
-        <p className="text-xl">“{quote}”</p>
-        {isPending && <p>Someone's answering your question!</p>}
+        <p className="text-xl text-center text-purple-800  font-pixel">
+          “{quote}”
+        </p>
       </div>
     </main>
   );

@@ -26,7 +26,7 @@ export default function Page() {
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <div className="flex flex-col gap-20 justify-items-center self-center">
         <h1 className="sr-only">Magic 8 Ball</h1>
-        <h2 className="text-5xl gap-3 font-mono">
+        <h2 className="text-5xl gap-3 font-pixel text-center text-balance text-purple-700">
           What do you want to ask the 8ball?
         </h2>
         <div className="flex flex-col gap-0.1">
