@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Ball from "@/components/ball";
 import { restApi } from "@/app/api";
 
@@ -16,11 +16,10 @@ export default function Page() {
 
   async function submit(formData: FormData) {
     const question = formData.get("question");
-    const reponse = await restApi.post("/question", {
+    await restApi.post("/question", {
       text: question,
     });
-    const id = reponse.data.id;
-    router.push(`/ask/${id}`);
+    router.push("/ask");
   }
 
   return (
@@ -58,7 +57,12 @@ export default function Page() {
       </div>
 
       <div className="flex flex-col gap-8 items-center w-full">
-        <Ball />
+        {useMemo(
+          () => (
+            <Ball />
+          ),
+          [],
+        )}
       </div>
     </main>
   );

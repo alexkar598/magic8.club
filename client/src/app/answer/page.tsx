@@ -1,20 +1,24 @@
 "use client";
-import Image from "next/image";
-import ballImage from "@/images/placeholder-ball.png";
 import { Textarea } from "@/components/ui/textarea";
 import Form from "next/form";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { restApi, socket } from "@/app/api";
+import Ball from "@/components/ball";
+import { Loader2 } from "lucide-react";
 
 export default function Page() {
   async function submit(formData: FormData) {
+    setSubmitting(true);
     const text = formData.get("answer");
     await restApi.post("/answer_question/answer", {
       text,
       question: question.id,
     });
+    setSubmitting(false);
   }
+
+  const [submitting, setSubmitting] = useState(false);
   const [question, setQuestion] = useState<any>(null);
   const [answer, setAnswer] = useState("");
 
@@ -46,7 +50,11 @@ export default function Page() {
                 maxLength={280}
               />
               <div className="flex justify-end ">
-                <Button type="submit" disabled={answer.length === 0}>
+                <Button
+                  type="submit"
+                  disabled={answer.length === 0 || submitting}
+                >
+                  {submitting && <Loader2 className="animation-spin" />}
                   Submit
                 </Button>
               </div>
@@ -59,8 +67,13 @@ export default function Page() {
         )}
       </div>
 
-      <div className="flex flex-col  gap-8 items-center">
-        <Image src={ballImage} alt="Magic 8 Ball" width={640} />
+      <div className="flex flex-col  gap-8 items-center w-full">
+        {useMemo(
+          () => (
+            <Ball />
+          ),
+          [],
+        )}
       </div>
     </main>
   );
