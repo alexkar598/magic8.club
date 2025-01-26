@@ -26,11 +26,20 @@ export default function Page() {
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <div className="flex flex-col gap-20 justify-items-center self-center">
         <h1 className="sr-only">Magic 8 Ball</h1>
-        <h2 className="text-5xl gap-3 font-pixel text-center text-balance text-purple-700">
-          What do you want to ask the 8ball?
-        </h2>
+        <div>
+          <h2 className="text-5xl gap-3 font-pixel text-center text-balance text-purple-700">
+            8Ball knows all
+          </h2>
+          <p className="text-2xl font-pixel text-center text-balance text-purple-700">
+            Ask away
+          </p>
+        </div>
+
         <div className="flex flex-col gap-0.1">
-          <Form className="flex flex-row w-[40rem] self-center" action={submit}>
+          <Form
+            className="flex flex-row max-w-[80vw] w-[40rem] self-center"
+            action={submit}
+          >
             <Input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -48,7 +57,7 @@ export default function Page() {
           </Form>
 
           <Link
-            className="italic text-[14px] font-[450] text-purple-900 self-center w-[20rem]"
+            className="italic text-[14px] mt-1 font-[450] text-purple-900 self-center w-[20rem]"
             href="/answer"
           >
             Answer someone's else's question instead
