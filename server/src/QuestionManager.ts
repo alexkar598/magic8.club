@@ -1,7 +1,7 @@
 import * as assert from "node:assert";
 import { DbAnswer } from "./entities/answer.js";
 import { answerSchema } from "./public_types/rest/answer.js";
-import { Question, QuestionState } from "./public_types/rest/question.ts";
+import { Question } from "./public_types/rest/question.ts";
 import { AppSocket, room } from "./types/socketio.js";
 
 const PENDING_QUESTION_REUSE_DELAY = 15000;
@@ -12,6 +12,11 @@ const QuestionManager = new (class QuestionManager {
   private questionToAsker = new Map<string, QuestionAskerSubscription>();
 
   private unassignedAnswerersQueue = new Set<QuestionAnswererSubscription>();
+
+  constructor() {
+    // For the time based things to work properly
+    setInterval(() => this.tryDequeue(), 5000);
+  }
 
   subscribeAsAsker(socket: AppSocket, question: Question) {
     const subscription = new QuestionAskerSubscription(
@@ -80,13 +85,6 @@ const QuestionManager = new (class QuestionManager {
 
     // Clean up the asker (and the answerer subscriptions at the same time)
     asker.cleanup();
-  }
-
-  getQuestionState(question_id: string): QuestionState {
-    const asker = this.questionToAsker.get(question_id);
-    if (!asker) return QuestionState.Closed;
-    if (asker.answerers.size > 0) return QuestionState.Pending;
-    return QuestionState.Unclaimed;
   }
 
   private tryDequeue() {
