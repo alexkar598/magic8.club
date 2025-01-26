@@ -1,10 +1,13 @@
 import * as assert from "node:assert";
+import db from "./db.js";
 import { DbAnswer } from "./entities/answer.js";
+import { DbQuestion } from "./entities/question.js";
 import { answerSchema } from "./public_types/rest/answer.js";
-import { Question } from "./public_types/rest/question.ts";
+import { Question, questionSchema } from "./public_types/rest/question.ts";
 import { AppSocket, room } from "./types/socketio.js";
 
 const PENDING_QUESTION_REUSE_DELAY = 15000;
+const CLOSED_QUESTION_REUSE_DELAY = 25000;
 
 const QuestionManager = new (class QuestionManager {
   private askerUnclaimedQueue = new Set<QuestionAskerSubscription>();
@@ -150,6 +153,47 @@ const QuestionManager = new (class QuestionManager {
 
         // Connect asker to answerer
         answerer.connectToAsker(asker);
+      }
+    }
+
+    // Find something for the unassigned answerers to do
+    for (const answerer of this.unassignedAnswerersQueue) {
+      if (
+        new Date().valueOf() - answerer.startedAt.valueOf() >
+        CLOSED_QUESTION_REUSE_DELAY
+      ) {
+        db.em
+          .fork()
+          .find(
+            DbQuestion,
+            {
+              author: {
+                $ne: answerer.socket.data.user_id,
+              },
+            },
+            {
+              orderBy: {
+                askedAt: "DESC",
+              },
+              limit: 10,
+            },
+          )
+          .then((options) => {
+            const question =
+              options[Math.floor(Math.random() * options.length)];
+
+            // Check if the answerer is still unassigned
+            if (!this.unassignedAnswerersQueue.has(answerer)) return;
+
+            // This is a fake interaction, there's no realtime requirement so terminate the user
+            answerer.cleanup();
+
+            // Emit event
+            answerer.socket.emit(
+              "answer:found_question",
+              questionSchema.parse(question),
+            );
+          });
       }
     }
   }
