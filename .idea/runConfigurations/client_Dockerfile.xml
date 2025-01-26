@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="client/Dockerfile" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
+    <deployment type="dockerfile">
+      <settings>
+        <option name="imageTag" value="magic8client" />
+        <option name="containerName" value="" />
+        <option name="commandLineOptions" value="--hostname magic8client --network=magic8" />
+        <option name="sourceFilePath" value="client/Dockerfile" />
+      </settings>
+    </deployment>
+    <method v="2" />
+  </configuration>
+</component>
