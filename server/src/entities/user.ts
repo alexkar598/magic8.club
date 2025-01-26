@@ -26,10 +26,6 @@ export class DbUser {
   })
   questions = new Collection<DbQuestion>(this);
 
-  // Testing
-  @Property()
-  counter = 0;
-
   //Code
   constructor() {}
 }

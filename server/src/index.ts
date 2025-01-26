@@ -1,4 +1,4 @@
-import { raw, RequestContext } from "@mikro-orm/core";
+import { RequestContext } from "@mikro-orm/core";
 import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
@@ -7,7 +7,6 @@ import { ZodError } from "zod";
 import { authHandler, magic8SessionIdHeaderName } from "./auth.js";
 import { config } from "./config.js";
 import db, { em } from "./db.js";
-import { DbUser } from "./entities/user.js";
 import { HttpError } from "./http_error.js";
 import { io } from "./realtime.js";
 import { appRouter } from "./routes/index.js";
@@ -42,15 +41,6 @@ app.use(((err, _req, res, next) => {
 
   next(err);
 }) satisfies ErrorRequestHandler);
-
-app.get("/", async (req, res) => {
-  const userRef = em.getReference(DbUser, req.user_id);
-  userRef.counter = raw("counter + 1");
-
-  await em.flush();
-
-  res.send(`<h1>You've been here ${userRef.counter} times</h1>`);
-});
 
 app.use(async (_req, _res, next) => {
   await em.flush();

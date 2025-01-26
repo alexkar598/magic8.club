@@ -8,4 +8,8 @@ router.use(
   (await import("./answer_question/index.ts")).default,
 );
 
+router.get("/", (_req, res) => {
+  res.status(204).end();
+});
+
 export const appRouter = router;
