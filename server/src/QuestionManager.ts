@@ -1,10 +1,8 @@
 import * as assert from "node:assert";
 import { DbAnswer } from "./entities/answer.js";
-import { HttpError } from "./http_error.js";
 import { answerSchema } from "./public_types/rest/answer.js";
 import { Question, QuestionState } from "./public_types/rest/question.ts";
-import { AppSocket } from "./public_types/socketio.js";
-import { room } from "./types/socketio.js";
+import { AppSocket, room } from "./types/socketio.js";
 
 const PENDING_QUESTION_REUSE_DELAY = 15000;
 

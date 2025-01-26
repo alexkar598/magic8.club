@@ -23,4 +23,6 @@ export default (async (req, res) => {
   await em.persistAndFlush(answer);
 
   QuestionManager.answerQuestion(answer);
+
+  res.status(204).end()
 }) satisfies RequestHandler;
