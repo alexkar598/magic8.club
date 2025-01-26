@@ -47,8 +47,8 @@ export default function Ball() {
   });
 
   return (
-    <div ref={riveRef}>
-      <RiveComponent className="w-[32rem] h-[32rem]" />
+    <div ref={riveRef} className="max-w-[95vw] w-[32rem] h-[32rem] m-auto">
+      <RiveComponent className="w-full h-full" />
     </div>
   );
 }
