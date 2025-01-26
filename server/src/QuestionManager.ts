@@ -193,7 +193,11 @@ class QuestionAskerSubscription extends QuestionSubscription<QuestionAskerSubscr
     this.socket.leave(room.question_asker(this.question.id));
 
     // We destroy all our answerers because they're no longer useful
-    this.answerers.forEach((x) => x.cleanup());
+    this.answerers.forEach((x) => {
+      // Bit hacky but we do this to unlink ourselves from the answerer so that they can't raise the cancelled emit
+      x.asker = undefined;
+      x.cleanup();
+    });
   }
 }
 
