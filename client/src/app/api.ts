@@ -11,7 +11,7 @@ const SESSION_ID_HEADER_NAME = "Magic8SessionId";
 const same_origin = Boolean(process.env.NEXT_PUBLIC_SAME_ORIGIN);
 
 // Urg, forces the account to be created
-await fetch(SERVER_URL + "api/");
+await axios.get(SERVER_URL + "api/");
 
 export const socket = io(SERVER_URL, {
   withCredentials: !same_origin,
