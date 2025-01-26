@@ -15,7 +15,13 @@ export const io = new Server<
   ServerToClientEvents,
   InterServerEvents,
   SocketData
->();
+>({
+  cors: {
+    origin: true,
+    credentials: true,
+    allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
+  }
+});
 
 io.use((_socket, next) => {
   RequestContext.create(em, next);

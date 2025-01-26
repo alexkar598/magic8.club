@@ -14,8 +14,9 @@ const app = express();
 
 app.use(
   cors({
-    allowedHeaders: [magic8SessionIdHeaderName],
+    allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
     credentials: true,
+    origin: true,
   }),
 );
 app.use(cookieParser());

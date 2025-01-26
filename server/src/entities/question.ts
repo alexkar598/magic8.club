@@ -23,7 +23,7 @@ export class DbQuestion {
 
   // Virtual
   @Property({ persist: false })
-  getState(): QuestionState {
+  get state(): QuestionState {
     return QuestionManager.getQuestionState(this.id);
   }
 
