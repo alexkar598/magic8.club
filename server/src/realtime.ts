@@ -14,6 +14,7 @@ import {
   ServerToClientEvents,
 } from "./public_types/socketio.js";
 import { AppSocket, room, SocketData } from "./types/socketio.js";
+import process from "node:process";
 
 export const io = new Server<
   ClientToServerEvents,
@@ -23,9 +24,10 @@ export const io = new Server<
 >({
   cors: {
     origin: true,
-    credentials: true,
+    credentials: !Boolean(process.env.SAME_ORIGIN),
     allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
   },
+  path: "/api/socket.io/",
 });
 
 io.use((_socket, next) => {

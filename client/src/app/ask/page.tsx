@@ -55,7 +55,7 @@ export default function Page() {
   });
 
   useInterval(() => {
-    let index = Math.floor(Math.random() * quotes.length);
+    const index = Math.floor(Math.random() * quotes.length);
     setQuote(quotes[index]);
   }, 5000);
 
