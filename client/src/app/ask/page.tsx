@@ -28,12 +28,13 @@ export default function Page() {
   const [quote, setQuote] = useState(quotes[0]);
 
   useInterval(() => {
-    setQuote("blabla");
+    let index = Math.floor(Math.random() * quotes.length);
+    setQuote(quotes[index]);
   }, 5000);
 
   return (
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-      <div className="flex flex-col gap-8 mt-[-18rem] items-start">
+      <div className="flex flex-col gap-20 mt-[-12rem] items-center ">
         <Image src={ballImage} alt="Magic 8 Ball" width={420} />
         <h1>{quote}</h1>
       </div>
