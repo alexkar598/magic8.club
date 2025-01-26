@@ -25,6 +25,10 @@ resource "docker_image" "magic8club-proxy" {
     context = "proxy"
     tag     = ["magic8club-proxy"]
   }
+
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "proxy/*") : filesha1(f)]))
+  }
 }
 
 resource "docker_image" "magic8club-server" {
@@ -33,6 +37,10 @@ resource "docker_image" "magic8club-server" {
     context = "server"
     tag     = ["magic8club-server"]
   }
+
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "server/*") : filesha1(f)]))
+  }
 }
 
 resource "docker_image" "magic8club-client" {
@@ -40,6 +48,10 @@ resource "docker_image" "magic8club-client" {
   build {
     context = "client"
     tag     = ["magic8club-client"]
+  }
+
+  triggers = {
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "client/*") : filesha1(f)]))
   }
 }
 
