@@ -1,5 +1,3 @@
-import { RemoteSocket, Socket } from "socket.io";
-import { DbUser } from "../entities/user.js";
 import { Answer } from "./rest/answer.js";
 import { Question } from "./rest/question.js";
 
@@ -26,17 +24,3 @@ export interface ServerToClientEvents {
 export interface ClientToServerEvents {}
 
 export interface InterServerEvents {}
-
-export interface SocketData {
-  user_id: string;
-  user: DbUser;
-  sid: string;
-}
-
-export type AppSocket = Socket<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
->;
-export type AppRemoteSocket = RemoteSocket<ServerToClientEvents, SocketData>;

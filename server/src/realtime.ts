@@ -8,14 +8,12 @@ import {
 } from "./auth.ts";
 import { em } from "./db.ts";
 import {
-  AppSocket,
   ClientToServerEvents,
   ConnectionFailureReason,
   InterServerEvents,
   ServerToClientEvents,
-  SocketData,
 } from "./public_types/socketio.js";
-import { room } from "./types/socketio.js";
+import { AppSocket, room, SocketData } from "./types/socketio.js";
 
 export const io = new Server<
   ClientToServerEvents,
