@@ -36,11 +36,15 @@ export default function Page() {
             <Input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              className="placeholder-italic "
+              className="placeholder-italic rounded-r-none font-mono"
               name="question"
               placeholder="Should I..."
             />
-            <Button type="submit" disabled={question.length === 0}>
+            <Button
+              className="rounded-l-none"
+              type="submit"
+              disabled={question.length === 0}
+            >
               Submit
             </Button>
           </Form>
