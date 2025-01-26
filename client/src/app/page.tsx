@@ -1,13 +1,12 @@
 "use client";
 
-import Image from "next/image";
-import ballImage from "@/images/placeholder-ball.png";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Ball from "@/components/ball";
 import { restApi } from "@/app/api";
 
 export default function Page() {
@@ -58,8 +57,8 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-8 items-center">
-        <Image src={ballImage} alt="Magic 8 Ball" width={640} />
+      <div className="flex flex-col gap-8 items-center w-full">
+        <Ball />
       </div>
     </main>
   );
