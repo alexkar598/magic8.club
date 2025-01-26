@@ -27,7 +27,7 @@ app.use((_req, _res, next) => {
   RequestContext.create(db.em, next);
 });
 app.use(authHandler);
-app.use(appRouter);
+app.use("/api", appRouter);
 
 app.use(((err, _req, res, next) => {
   if (err instanceof ZodError) {
