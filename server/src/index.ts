@@ -58,7 +58,7 @@ server.listen(config.port, () => {
 });
 io.listen(server);
 
-io.engine.on("headers", (headers, req) => {
+io.engine.on("initial_headers", (headers, req) => {
   headers["set-cookie"] = serialize(magic8TokenCookieName, req.user_token, {
     sameSite: "strict",
     httpOnly: true,
