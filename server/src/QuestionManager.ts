@@ -1,6 +1,10 @@
 import * as assert from "node:assert";
+import { DbAnswer } from "./entities/answer.js";
+import { HttpError } from "./http_error.js";
+import { answerSchema } from "./public_types/rest/answer.js";
 import { Question, QuestionState } from "./public_types/rest/question.ts";
-import { AppSocket, room } from "./public_types/socketio.js";
+import { AppSocket } from "./public_types/socketio.js";
+import { room } from "./types/socketio.js";
 
 const PENDING_QUESTION_REUSE_DELAY = 15000;
 
@@ -50,6 +54,34 @@ const QuestionManager = new (class QuestionManager {
     this.unassignedAnswerersQueue.add(subscription);
 
     this.tryDequeue();
+  }
+
+  answerQuestion(answer: DbAnswer) {
+    const asker = this.questionToAsker.get(answer.question.id);
+
+    // Silently ignore errors
+    // Its possible to answer a question that isn't a question anymore if you were a secondary answerer
+    // A malicious user can save to the db answers that aren't supposed to be answered by that user
+    if (asker == null) return;
+
+    let answerer: QuestionAnswererSubscription | null = null;
+    for (const candidate of asker.answerers.values() ?? []) {
+      if (candidate.socket.data.user_id === answer.author.id)
+        answerer = candidate;
+    }
+
+    // Silently ignore errors for the same reason
+    if (answerer == null) return;
+
+    // Let the asker know we are answered them
+    asker.socket.emit(
+      "question:answered",
+      asker.question,
+      answerSchema.parse(answer),
+    );
+
+    // Clean up the asker (and the answerer subscriptions at the same time)
+    asker.cleanup();
   }
 
   getQuestionState(question_id: string): QuestionState {
@@ -139,7 +171,7 @@ abstract class QuestionSubscription<Self extends QuestionSubscription<Self>> {
     socket.on("disconnecting", this.cleanup);
   }
 
-  protected cleanup() {
+  public cleanup() {
     this.cleanupFn(this as unknown as Self);
     this.socket.off("disconnecting", this.cleanup);
   }
@@ -158,13 +190,14 @@ class QuestionAskerSubscription extends QuestionSubscription<QuestionAskerSubscr
     socket.join([room.question(question.id), room.question_asker(question.id)]);
   }
 
-  protected cleanup() {
+  public cleanup() {
     super.cleanup();
 
     this.socket.leave(room.question(this.question.id));
     this.socket.leave(room.question_asker(this.question.id));
 
-    this.answerers.forEach((x) => (x.asker = undefined));
+    // We destroy all our answerers because they're no longer useful
+    this.answerers.forEach((x) => x.cleanup());
   }
 }
 
@@ -177,7 +210,7 @@ class QuestionAnswererSubscription extends QuestionSubscription<QuestionAnswerer
     asker.answerers.add(this);
   }
 
-  protected cleanup() {
+  public cleanup() {
     super.cleanup();
 
     this.asker?.answerers.delete(this);

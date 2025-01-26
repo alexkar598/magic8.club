@@ -12,10 +12,10 @@ import {
   ClientToServerEvents,
   ConnectionFailureReason,
   InterServerEvents,
-  room,
   ServerToClientEvents,
   SocketData,
 } from "./public_types/socketio.js";
+import { room } from "./types/socketio.js";
 
 export const io = new Server<
   ClientToServerEvents,

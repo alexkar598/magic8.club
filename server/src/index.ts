@@ -7,6 +7,7 @@ import { authHandler, magic8SessionIdHeaderName } from "./auth.js";
 import { config } from "./config.js";
 import db, { em } from "./db.js";
 import { DbUser } from "./entities/user.js";
+import { HttpError } from "./http_error.js";
 import { io } from "./realtime.js";
 import { appRouter } from "./routes/index.js";
 import cors from "cors";
@@ -30,6 +31,11 @@ app.use(appRouter);
 app.use(((err, _req, res, next) => {
   if (err instanceof ZodError) {
     res.status(400).end(err.toString());
+    return;
+  }
+
+  if (err instanceof HttpError) {
+    res.status(err.statusCode).end(err.rawMessage);
     return;
   }
 

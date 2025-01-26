@@ -1,8 +1,9 @@
 import { Entity, ManyToOne } from "@mikro-orm/better-sqlite";
-import { PrimaryKey, Property } from "@mikro-orm/core";
+import { Collection, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
 import { v4 } from "uuid";
 import { QuestionState } from "../public_types/rest/question.ts";
 import QuestionManager from "../QuestionManager.ts";
+import { DbAnswer } from "./answer.js";
 import { DbUser } from "./user.ts";
 
 @Entity()
@@ -20,6 +21,12 @@ export class DbQuestion {
   // Owning relations
   @ManyToOne()
   author: DbUser;
+
+  // Inverse relations
+  @OneToMany(() => DbAnswer, (answer) => answer.question, {
+    orphanRemoval: true,
+  })
+  answers = new Collection<DbAnswer>(this);
 
   // Virtual
   @Property({ persist: false })
