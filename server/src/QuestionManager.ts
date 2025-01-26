@@ -6,8 +6,8 @@ import { answerSchema } from "./public_types/rest/answer.js";
 import { Question, questionSchema } from "./public_types/rest/question.ts";
 import { AppSocket, room } from "./types/socketio.js";
 
-const PENDING_QUESTION_REUSE_DELAY = 15000;
-const CLOSED_QUESTION_REUSE_DELAY = 25000;
+const PENDING_QUESTION_REUSE_DELAY = 5000;
+const CLOSED_QUESTION_REUSE_DELAY = 30_000;
 
 const QuestionManager = new (class QuestionManager {
   private askerUnclaimedQueue = new Set<QuestionAskerSubscription>();
