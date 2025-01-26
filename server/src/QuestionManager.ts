@@ -1,25 +1,27 @@
 import * as assert from "node:assert";
-import { Question, QuestionState } from "./public_types/question.ts";
-import { AppSocket } from "./realtime.ts";
+import { Question, QuestionState } from "./public_types/rest/question.ts";
+import { AppSocket, room } from "./public_types/socketio.js";
+
+const PENDING_QUESTION_REUSE_DELAY = 15000;
 
 const QuestionManager = new (class QuestionManager {
-  private askerQueue = new Set<QuestionAskerSubscription>();
+  private askerUnclaimedQueue = new Set<QuestionAskerSubscription>();
   private askerPendingQueue = new Set<QuestionAskerSubscription>();
-  private answererQueue = new Set<QuestionAnswererSubscription>();
-
   private questionToAsker = new Map<string, QuestionAskerSubscription>();
+
+  private unassignedAnswerersQueue = new Set<QuestionAnswererSubscription>();
 
   subscribeAsAsker(socket: AppSocket, question: Question) {
     const subscription = new QuestionAskerSubscription(
       socket,
       (subscription) => {
-        this.askerQueue.delete(subscription);
+        this.askerUnclaimedQueue.delete(subscription);
         this.askerPendingQueue.delete(subscription);
         this.questionToAsker.delete(question.id);
       },
       question,
     );
-    this.askerQueue.add(subscription);
+    this.askerUnclaimedQueue.add(subscription);
     this.questionToAsker.set(question.id, subscription);
 
     this.tryDequeue();
@@ -29,10 +31,23 @@ const QuestionManager = new (class QuestionManager {
     const subscription = new QuestionAnswererSubscription(
       socket,
       (subscription) => {
-        this.answererQueue.delete(subscription);
+        this.unassignedAnswerersQueue.delete(subscription);
+
+        // Handle if we are the only pending answerer
+        if (subscription.asker?.answerers.size == 1) {
+          // Move the asker back to the unclaimed queue
+          this.askerPendingQueue.delete(subscription.asker);
+          this.askerUnclaimedQueue.add(subscription.asker);
+
+          // Let the asker know about what happened
+          subscription.asker.socket.emit(
+            "question:cancelled",
+            subscription.asker.question,
+          );
+        }
       },
     );
-    this.answererQueue.add(subscription);
+    this.unassignedAnswerersQueue.add(subscription);
 
     this.tryDequeue();
   }
@@ -45,40 +60,88 @@ const QuestionManager = new (class QuestionManager {
   }
 
   private tryDequeue() {
-    // Pair 1:1 asker and answerer
-    const optimalPairings = Math.min(
-      this.askerQueue.size,
-      this.answererQueue.size,
-    );
+    // Pair unclaimed questions
+    for (const asker of this.askerUnclaimedQueue) {
+      let answerer: QuestionAnswererSubscription | null = null;
+      for (const candidate of this.unassignedAnswerersQueue) {
+        // We never allow to answer your own question
+        if (asker.socket.data.user_id == candidate.socket.data.user_id)
+          continue;
 
-    for (let i = 0; i < optimalPairings; i++) {
-      const asker = this.askerQueue.values().next().value!;
-      const answerer = this.answererQueue.values().next().value!;
+        // Got a match!
+        answerer = candidate;
+        break;
+      }
 
-      this.askerQueue.delete(asker);
-      this.answererQueue.delete(answerer);
+      // We couldn't find anyone for this asker, next!
+      if (answerer == null) continue;
 
-      asker.socket.emit("question:pending", asker.question);
+      // Move from unclaimed queue to pending queue
+      this.askerUnclaimedQueue.delete(asker);
       this.askerPendingQueue.add(asker);
 
+      // Remove the answerer
+      this.unassignedAnswerersQueue.delete(answerer);
+
+      // Emit events
+      asker.socket.emit("question:pending", asker.question);
       answerer.socket.emit("answer:found_question", asker.question);
+
+      // Connect asker to answerer
+      answerer.connectToAsker(asker);
+    }
+
+    // Find something for the unassigned answerers to do
+    for (const answerer of this.unassignedAnswerersQueue) {
+      if (
+        new Date().valueOf() - answerer.startedAt.valueOf() >
+        PENDING_QUESTION_REUSE_DELAY
+      ) {
+        let asker: QuestionAskerSubscription | null = null;
+        for (const candidate of this.askerPendingQueue) {
+          // Don't allow responding to our own question
+          if (candidate.socket.data.user_id === answerer.socket.data.user_id)
+            continue;
+
+          // We found an asker
+          asker = candidate;
+          break;
+        }
+
+        // We couldn't find anyone for this answerer, next!
+        if (asker == null) continue;
+
+        //do not do queue operations for asker
+
+        // Remove the answerer
+        this.unassignedAnswerersQueue.delete(answerer);
+
+        // Emit events
+        //do not emit pending event
+        answerer.socket.emit("answer:found_question", asker.question);
+
+        // Connect asker to answerer
+        answerer.connectToAsker(asker);
+      }
     }
   }
 })();
 
 abstract class QuestionSubscription<Self extends QuestionSubscription<Self>> {
+  public readonly startedAt = new Date();
+
   constructor(
     public readonly socket: AppSocket,
-    private disposeFn: (self: Self) => void,
+    private cleanupFn: (self: Self) => void,
   ) {
-    this.dispose = this.dispose.bind(this);
+    this.cleanup = this.cleanup.bind(this);
 
-    socket.on("disconnect", this.dispose);
+    socket.on("disconnecting", this.cleanup);
   }
 
-  protected dispose() {
-    this.socket.off("disconnect", this.dispose);
-    this.disposeFn(this as unknown as Self);
+  protected cleanup() {
+    this.cleanupFn(this as unknown as Self);
+    this.socket.off("disconnecting", this.cleanup);
   }
 }
 
@@ -91,10 +154,15 @@ class QuestionAskerSubscription extends QuestionSubscription<QuestionAskerSubscr
     public readonly question: Question,
   ) {
     super(socket, disposeFn);
+
+    socket.join([room.question(question.id), room.question_asker(question.id)]);
   }
 
-  protected dispose() {
-    super.dispose();
+  protected cleanup() {
+    super.cleanup();
+
+    this.socket.leave(room.question(this.question.id));
+    this.socket.leave(room.question_asker(this.question.id));
 
     this.answerers.forEach((x) => (x.asker = undefined));
   }
@@ -109,8 +177,8 @@ class QuestionAnswererSubscription extends QuestionSubscription<QuestionAnswerer
     asker.answerers.add(this);
   }
 
-  protected dispose() {
-    super.dispose();
+  protected cleanup() {
+    super.cleanup();
 
     this.asker?.answerers.delete(this);
   }

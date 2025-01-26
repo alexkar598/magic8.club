@@ -1,7 +1,7 @@
 import { Entity, ManyToOne } from "@mikro-orm/better-sqlite";
 import { PrimaryKey, Property } from "@mikro-orm/core";
 import { v4 } from "uuid";
-import { QuestionState } from "../public_types/question.ts";
+import { QuestionState } from "../public_types/rest/question.ts";
 import QuestionManager from "../QuestionManager.ts";
 import { DbUser } from "./user.ts";
 

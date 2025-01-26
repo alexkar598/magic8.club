@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { entityId } from "./_base.ts";
+import { entityId } from "../_base.ts";
 
 export enum QuestionState {
   Unclaimed,

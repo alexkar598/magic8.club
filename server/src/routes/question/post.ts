@@ -4,7 +4,7 @@ import { DbQuestion } from "../../entities/question.ts";
 import {
   questionPostSchema,
   questionSchema,
-} from "../../public_types/question.ts";
+} from "../../public_types/rest/question.ts";
 import QuestionManager from "../../QuestionManager.ts";
 import { getSocket } from "../../realtime.ts";
 
@@ -20,10 +20,8 @@ export default (async (req, res) => {
   const dbQuestion = new DbQuestion(question.text, req.user);
   await em.persistAndFlush(dbQuestion);
 
-  const questionResponse = questionSchema.parse(dbQuestion);
+  QuestionManager.subscribeAsAsker(socket, questionSchema.parse(dbQuestion));
 
-  QuestionManager.subscribeAsAsker(socket, questionResponse);
-
-  res.send(questionResponse);
+  res.send(questionSchema.parse(dbQuestion));
   res.end();
 }) satisfies RequestHandler;
