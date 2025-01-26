@@ -1,6 +1,7 @@
 import { RemoteSocket, Socket } from "socket.io";
 import { DbUser } from "../entities/user.js";
-import { QuestionPost } from "./rest/question.js";
+import { Answer } from "./rest/answer.js";
+import { Question } from "./rest/question.js";
 
 export const room = {
   user: (user_id: string) => `user:${user_id}`,
@@ -22,13 +23,13 @@ export enum ConnectionFailureReason {
 }
 export interface ServerToClientEvents {
   // Your question has been answered
-  "question:answered": (question: QuestionPost) => void;
+  "question:answered": (question: Question, answer: Answer) => void;
   // Your question is being answered
-  "question:pending": (question: QuestionPost) => void;
+  "question:pending": (question: Question) => void;
   // Your question is no longer being answered
-  "question:cancelled": (question: QuestionPost) => void;
+  "question:cancelled": (question: Question) => void;
   // We have found a question for you to answer
-  "answer:found_question": (question: QuestionPost) => void;
+  "answer:found_question": (question: Question) => void;
   // Your connection is ready
   "connection:ready": () => void;
   // Your connection has been terminated
