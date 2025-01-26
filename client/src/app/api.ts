@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 export const sid = Math.random().toString(36);
 
 const SERVER_URL =
-  process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:5000";
+  process.env.NEXT_PUBLIC_SERVER_URL ?? "http://localhost:5000/";
 const SESSION_ID_HEADER_NAME = "Magic8SessionId";
 const same_origin = Boolean(process.env.NEXT_PUBLIC_SAME_ORIGIN);
 
@@ -15,6 +15,7 @@ export const socket = io(SERVER_URL, {
   extraHeaders: {
     [SESSION_ID_HEADER_NAME]: sid,
   },
+  path: "/api/socket.io/",
 });
 
 let setIsReady: (value: void) => void;
@@ -27,7 +28,7 @@ socket.on("connection:ready", () => {
 });
 
 export const restApi = axios.create({
-  baseURL: SERVER_URL,
+  baseURL: SERVER_URL + "api/",
   headers: {
     [SESSION_ID_HEADER_NAME]: sid,
   },

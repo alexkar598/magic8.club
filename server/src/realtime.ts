@@ -27,6 +27,7 @@ export const io = new Server<
     credentials: !Boolean(process.env.SAME_ORIGIN),
     allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
   },
+  path: "/api/socket.io/",
 });
 
 io.use((_socket, next) => {
