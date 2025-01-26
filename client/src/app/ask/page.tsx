@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useInterval } from "usehooks-ts";
 import { socket } from "@/app/api";
 import Ball from "@/components/ball";
 import { Loader2 } from "lucide-react";
