@@ -3,19 +3,6 @@ import { DbUser } from "../entities/user.js";
 import { Answer } from "./rest/answer.js";
 import { Question } from "./rest/question.js";
 
-export const room = {
-  user: (user_id: string) => `user:${user_id}`,
-  user_session: (user_id: string, sid: string) =>
-    `${room.user(user_id)}:${sid}`,
-  question: (question_id: string) => `question:${question_id}`,
-  question_asker: (question_id: string) =>
-    `${room.question(question_id)}:asker`,
-  question_answerer: (question_id: string) =>
-    `${room.question(question_id)}:answerer`,
-  question_answerer_scoped: (question_id: string, user_id: string) =>
-    `${room.question_answerer(question_id)}:${user_id}`,
-};
-
 export enum ConnectionFailureReason {
   SetupException,
   DuplicateSessionId,
