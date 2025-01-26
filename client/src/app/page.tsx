@@ -8,6 +8,7 @@ import Link from "next/link";
 import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { restApi } from "@/app/api";
 
 export default function Page() {
   const router = useRouter();
@@ -16,11 +17,10 @@ export default function Page() {
 
   async function submit(formData: FormData) {
     const question = formData.get("question");
-    await fetch("https://webhook.site/0daffc67-36c2-43c1-96f3-183f24cd104f", {
-      method: "POST",
-      body: JSON.stringify({ question }),
+    const reponse = await restApi.post("/question", {
+      text: question,
     });
-    const id = "5435";
+    const id = reponse.data.id;
     router.push(`/ask/${id}`);
   }
 
