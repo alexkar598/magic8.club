@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import ballImage from "@/images/placeholder-ball.png";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInterval } from "usehooks-ts";
+import { socket } from "@/app/api";
 
 export default function Page() {
   const quotes = [
@@ -26,6 +27,32 @@ export default function Page() {
   ];
 
   const [quote, setQuote] = useState(quotes[0]);
+  const [answer, setAnswer] = useState("");
+  const [isPending, setIsPending] = useState(false);
+
+  function pending() {
+    setIsPending(true);
+  }
+
+  function cancelled() {
+    setIsPending(false);
+  }
+
+  function answered(question: any, answer: any) {
+    setAnswer(answer.text);
+  }
+
+  useEffect(() => {
+    socket.on("question:pending", pending);
+    socket.on("question:cancelled", cancelled);
+    socket.once("question:answered", answered);
+
+    return () => {
+      socket.off("question:pending");
+      socket.off("question:cancelled");
+      socket.off("question:answered");
+    };
+  });
 
   useInterval(() => {
     let index = Math.floor(Math.random() * quotes.length);
@@ -36,7 +63,9 @@ export default function Page() {
     <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
       <div className="flex flex-col gap-20 mt-[-12rem] items-center ">
         <Image src={ballImage} alt="Magic 8 Ball" width={420} />
-        <h1>{quote}</h1>
+        <h2>{answer}</h2>
+        <p>{quote}</p>
+        {isPending && <p>Someone's answering your question!</p>}
       </div>
     </main>
   );
