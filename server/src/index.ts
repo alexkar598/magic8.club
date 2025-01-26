@@ -1,10 +1,15 @@
 import { RequestContext } from "@mikro-orm/core";
+import { serialize } from "cookie";
 import cookieParser from "cookie-parser";
 import express, { ErrorRequestHandler, json } from "express";
 import http from "http";
 import process from "node:process";
 import { ZodError } from "zod";
-import { authHandler, magic8SessionIdHeaderName } from "./auth.js";
+import {
+  authHandler,
+  magic8SessionIdHeaderName,
+  magic8TokenCookieName,
+} from "./auth.js";
 import { config } from "./config.js";
 import db, { em } from "./db.js";
 import { HttpError } from "./http_error.js";
@@ -52,3 +57,10 @@ server.listen(config.port, () => {
   console.log(`listening on *:${config.port}`);
 });
 io.listen(server);
+
+io.engine.on("headers", (headers, req) => {
+  headers["set-cookie"] = serialize(magic8TokenCookieName, req.user_token, {
+    sameSite: "strict",
+    httpOnly: true,
+  });
+});

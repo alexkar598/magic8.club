@@ -28,6 +28,41 @@ export const io = new Server<
     allowedHeaders: [magic8SessionIdHeaderName, "content-type"],
   },
   path: "/api/socket.io/",
+  allowRequest: async (req, callback) => {
+    try {
+      const sid = req.headers[magic8SessionIdHeaderName.toLowerCase()];
+      if (typeof sid != "string") {
+        callback("Session ID missing", false);
+        return;
+      }
+
+      req.sid = sid;
+
+      const cookies = cookie.parse(req.headers.cookie ?? "");
+      const token = cookies[magic8TokenCookieName];
+      const user = await resolveOrCreate(token);
+
+      // Populate context
+      req.user_token = user.token;
+      req.user_id = user.id;
+      req.user = user;
+
+      // Disconnect old sessions
+      for (const socket of await io
+        .in(room.user_session(user.id, sid))
+        .fetchSockets()) {
+        socket.emit(
+          "connection:failed",
+          ConnectionFailureReason.DuplicateSessionId,
+        );
+        socket.disconnect(true);
+      }
+
+      callback(null, true);
+    } catch (e) {
+      callback("Error in allowRequest: " + String(e), false);
+    }
+  },
 });
 
 io.use((_socket, next) => {
@@ -35,41 +70,16 @@ io.use((_socket, next) => {
 });
 
 io.on("connection", async (socket) => {
-  const sid = socket.request.headers[magic8SessionIdHeaderName.toLowerCase()];
-  if (typeof sid != "string") {
-    socket.emit(
-      "connection:failed",
-      ConnectionFailureReason.BadRequest,
-      "Session ID missing",
-    );
-    return;
-  }
-
-  socket.data.sid = sid;
-
-  const cookies = cookie.parse(socket.request.headers.cookie ?? "");
-  const token = cookies[magic8TokenCookieName];
-
   try {
-    const user = await resolveOrCreate(token);
-
-    // Populate context
-    socket.data.user_id = user.id;
-    socket.data.user = user;
-
-    // Disconnect old sessions
-    for (const socket of await io
-      .in(room.user_session(user.id, sid))
-      .fetchSockets()) {
-      socket.emit(
-        "connection:failed",
-        ConnectionFailureReason.DuplicateSessionId,
-      );
-      socket.disconnect(true);
-    }
+    socket.data.sid = socket.request.sid;
+    socket.data.user = socket.request.user;
+    socket.data.user_id = socket.request.user_id;
 
     // Join rooms
-    socket.join([room.user(user.id), room.user_session(user.id, sid)]);
+    socket.join([
+      room.user(socket.data.user_id),
+      room.user_session(socket.data.user_id, socket.data.sid),
+    ]);
 
     // Emit ready
     socket.emit("connection:ready");

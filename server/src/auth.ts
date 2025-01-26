@@ -1,5 +1,5 @@
 import { RequestHandler } from "express-serve-static-core";
-import { em } from "./db.ts";
+import db from "./db.ts";
 import { DbUser } from "./entities/user.ts";
 
 export const magic8TokenCookieName = "magic8_token";
@@ -19,6 +19,7 @@ export const authHandler: RequestHandler = async (req, res, next) => {
   const user = await resolveOrCreate(token);
   res.cookie(magic8TokenCookieName, user.token, {
     httpOnly: true,
+    sameSite: "strict",
   });
 
   req.user_id = user.id;
@@ -28,6 +29,8 @@ export const authHandler: RequestHandler = async (req, res, next) => {
 };
 
 export async function resolveOrCreate(token: string | null | undefined) {
+  const em = db.em.fork();
+
   // If we have a token, get the associated user id
   let user =
     token == null ? null : ((await em.findOne(DbUser, { token })) ?? null);
