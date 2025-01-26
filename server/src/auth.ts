@@ -19,6 +19,7 @@ export const authHandler: RequestHandler = async (req, res, next) => {
   const user = await resolveOrCreate(token);
   res.cookie(magic8TokenCookieName, user.token, {
     httpOnly: true,
+    path: "/",
     sameSite: "strict",
   });
 
